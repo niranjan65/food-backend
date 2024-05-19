@@ -7,11 +7,16 @@ import router from "./routes/routes.js";
 
 const app = express()
 
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    methods: "GET, POST, PUT, DELETE, PATCH, HEAD",
-    credentials: true
-}))
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true, // Allows the server to accept cookies from the browser
+    allowedHeaders: 'Content-Type, Authorization'
+};
+
+app.use(cors(corsOptions))
 
 
 
@@ -38,7 +43,9 @@ connectDB()
 
 
 //routes
-
+app.get("/", (req, res) => {
+    res.send("Server is running.......")
+})
 
 //routes declaration
 

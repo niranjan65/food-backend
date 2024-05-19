@@ -1,4 +1,4 @@
-import { User } from "../models/User";
+import { User } from "../models/User.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import nodemailer from "nodemailer"
@@ -63,7 +63,7 @@ const login = async (req, res) => {
             sameSite: "none"
         }
 
-        res.cookie("token", token, options).status(200).json({success: true, message: "User login successfull"})
+        res.status(200).cookie("token", token, options).json({success: true, token, message: "User login successfull"})
 
     } catch (error) {
         return res.status(500).json({success: false, message: error.message})
@@ -73,7 +73,11 @@ const login = async (req, res) => {
 // LOGOUT ROUTE
 const logout = async (req, res) => {
     try {
-        res.clearCookie("token").json({success: true, message: "User logged out successfully"})
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+        res.clearCookie("token", options).json({success: true, message: "User logged out successfully"})
     } catch (error) {
         return res.status(500).json({success: false, message: error.message})
     }
@@ -84,7 +88,7 @@ const getUser = async (req, res) => {
     const reqId = req.id;
 
     try {
-        let user = await User.findById({reqId}).select("-password")   
+        let user = await User.findById(reqId).select("-password")   
 
         if(!user) {
             return res.status(400).json({success: false, message: "User not found"})

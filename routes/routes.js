@@ -20,7 +20,7 @@ router.delete("/remove-from-cart/:id", removeFromCart)
 router.put("/increment-quantity/:id", incrementQuantity)
 router.put("/decrement-quantity/:id", decrementQuantity)
 router.get("/checkout", verifyToken, checkOut)
-router.get("clear-cart", verifyToken, clearCart)
+router.get("/clear-cart", verifyToken, clearCart)
 
 
 
