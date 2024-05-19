@@ -2,6 +2,7 @@ import { User } from "../models/User.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import nodemailer from "nodemailer"
+import dotenv from "dotenv"
 
 // SIGNUP ROUTE
 const signup = async (req, res) => {
@@ -33,42 +34,52 @@ const signup = async (req, res) => {
 }
 
 // LOGIN ROUTE
+
+dotenv.config();
+
 const login = async (req, res) => {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
 
     try {
-        
-        let user = await User.findOne( {email} );
-        if(!user) {
-            return res
-               .status(400)
-               .json({success: false, message: "Please signup"})
+        // Check if user exists
+        let user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ success: false, message: "Please signup" });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password)
-
-        if(!isMatch) {
-            return res
-               .status(400)
-               .json({success: false, message: "Invalid credentials"})
+        // Compare provided password with stored hashed password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "Invalid credentials" });
         }
 
-        const token = jwt.sign( {id: user._id}, process.env.JWT_SECRET, {
+        // Generate JWT token
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
             expiresIn: "1h"
         });
 
+        // Cookie options
         const options = {
             httpOnly: true,
-            secure: true,
-            sameSite: "none"
-        }
+            secure: process.env.NODE_ENV === 'production', // Set to true in production for HTTPS
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+        };
 
-        res.status(200).cookie("token", token, options).json({success: true, token, message: "User login successfull"})
+        // Get user data excluding password
+        const loggedInUser = await User.findById(user._id).select("-password");
+
+        // Set cookie and respond
+        res.status(200)
+           .cookie("token", token, options)
+           .json({ success: true, user: loggedInUser, token, message: "User login successful" });
 
     } catch (error) {
-        return res.status(500).json({success: false, message: error.message})
+        return res.status(500).json({ success: false, message: error.message });
     }
-}
+};
+
+export default login;
+
 
 // LOGOUT ROUTE
 const logout = async (req, res) => {
