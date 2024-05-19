@@ -8,7 +8,7 @@ import router from "./routes/routes.js";
 const app = express()
 
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: ["http://localhost:5173", "https://foodplaza-frontend.vercel.app"],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
