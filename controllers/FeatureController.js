@@ -11,6 +11,7 @@ const addToCart = async (req, res) => {
     const userId = req.params.id;
     const {id, name, price, rating, image, quantity } = req.body;
 
+
     try {
         
         let existingItem = await Food.findOne({id, userId: userId})
@@ -59,7 +60,7 @@ const addToCart = async (req, res) => {
               .json({ success: false, message: "Failed to add to cart" })
         }
 
-
+        return res.status(200).json({ success: true, message: "Added to cart" });
     } catch (error) {
         return res.status(500).json({success: false, message: error.message})
     }
